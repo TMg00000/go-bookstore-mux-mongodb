@@ -1,6 +1,6 @@
 package domain
 
-type BookTypePost struct {
+type Book struct {
 	Title       string
 	Description string
 	ReleaseDate string
@@ -8,6 +8,7 @@ type BookTypePost struct {
 	Value       float32
 }
 
-type ServicesMongoDBRepository interface {
-	Add(BookTypePost) error
+type MongoDBRepository interface {
+	Search(title string) (Book, error) // busca se o livro ja existe no banco de dados para evitar duplicação.
+	Add(Book) error                    // Insere um novo livro no banco de dados.
 }

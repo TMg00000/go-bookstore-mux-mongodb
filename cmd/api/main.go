@@ -24,8 +24,8 @@ func main() {
 	}()
 
 	bookstoreRepo := mongodb.NewBookstoreRepository(db)
-	router := handler.ServicesRepository{
-		Services: bookstoreRepo,
+	router := handler.Repository{
+		Repo: bookstoreRepo,
 	}
 
 	r := mux.NewRouter()

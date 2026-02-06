@@ -10,8 +10,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type ServicesRepository struct {
-	Services domain.ServicesMongoDBRepository
+type Repository struct {
+	Repo domain.MongoDBRepository
 }
 
 type requestAddBooks struct {
@@ -33,7 +33,7 @@ type responseAddBooks struct {
 var reqAddBook requestAddBooks
 var respAddBook responseAddBooks
 
-func (s *ServicesRepository) AddNewBook(w http.ResponseWriter, r *http.Request) {
+func (rep *Repository) AddNewBook(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewDecoder(r.Body).Decode(&reqAddBook); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -45,7 +45,7 @@ func (s *ServicesRepository) AddNewBook(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	newBook := domain.BookTypePost{
+	newBook := domain.Book{
 		Title:       reqAddBook.Title,
 		Description: reqAddBook.Description,
 		Author:      reqAddBook.Author,
@@ -53,7 +53,18 @@ func (s *ServicesRepository) AddNewBook(w http.ResponseWriter, r *http.Request) 
 		ReleaseDate: reqAddBook.ReleaseDate,
 	}
 
-	if err := s.Services.Add(newBook); err != nil {
+	book, err := rep.Repo.Search(reqAddBook.Title)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := domain.ToCheck(book, reqAddBook.Title); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := rep.Repo.Add(newBook); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -61,5 +72,4 @@ func (s *ServicesRepository) AddNewBook(w http.ResponseWriter, r *http.Request) 
 	w.Header().Set("Content-type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(respAddBook)
-
 }

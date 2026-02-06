@@ -19,7 +19,7 @@ func NewBookstoreRepository(col *mongo.Collection) *BookstoreRepository {
 	}
 }
 
-func (r *BookstoreRepository) Add(b domain.BookTypePost) error {
+func (r *BookstoreRepository) Add(b domain.Book) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -38,4 +38,20 @@ func (r *BookstoreRepository) Add(b domain.BookTypePost) error {
 	}
 
 	return nil
+}
+
+func (r *BookstoreRepository) Search(title string) (domain.Book, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var book domain.Book
+
+	filter := bson.M{"title": title}
+	err := r.repo.FindOne(ctx, filter).Decode(&book)
+	if err != nil {
+		return domain.Book{}, err
+	}
+
+	return book, nil
+
 }
