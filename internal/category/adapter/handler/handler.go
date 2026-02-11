@@ -53,17 +53,6 @@ func (rep *Repository) AddNewBook(w http.ResponseWriter, r *http.Request) {
 		ReleaseDate: reqAddBook.ReleaseDate,
 	}
 
-	book, err := rep.Repo.Search(reqAddBook.Title)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	if err := domain.ToCheck(book, reqAddBook.Title); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
 	if err := rep.Repo.Add(newBook); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

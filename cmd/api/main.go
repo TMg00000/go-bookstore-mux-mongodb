@@ -23,6 +23,9 @@ func main() {
 		returnFatalError(err)
 	}()
 
+	err := mongodb.TitleUniqueIndex(db)
+	returnFatalError(err)
+
 	bookstoreRepo := mongodb.NewBookstoreRepository(db)
 	router := handler.Repository{
 		Repo: bookstoreRepo,
