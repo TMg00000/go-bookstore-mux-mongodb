@@ -16,7 +16,7 @@ type BookstoreRepository struct {
 
 func TitleUniqueIndex(coll *mongo.Collection) error {
 	model := mongo.IndexModel{
-		Keys:    bson.D{{Key: "title", Value: 1}},
+		Keys:    bson.D{{Key: "book.title", Value: 1}},
 		Options: options.Index().SetUnique(true),
 	}
 
@@ -48,6 +48,35 @@ func (r *BookstoreRepository) Add(b domain.Book) error {
 		if mongo.IsDuplicateKeyError(err) {
 			return err
 		}
+		return err
+	}
+
+	return nil
+}
+
+func (r *BookstoreRepository) Update(b domain.Book) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	filter := bson.M{"_id": b.Id}
+	doc := bson.M{
+		"$set": bson.M{
+			"book": bson.M{
+				"title":        b.Title,
+				"description":  b.Description,
+				"author":       b.Author,
+				"book.value":   b.Value,
+				"book.release": b.ReleaseDate,
+			},
+		},
+	}
+
+	result, err := r.repo.UpdateByID(ctx, filter, doc)
+	if result.MatchedCount < 1 {
+		return err
+	}
+
+	if err != nil {
 		return err
 	}
 

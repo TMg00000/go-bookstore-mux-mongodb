@@ -33,6 +33,7 @@ func main() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/api/bookstore", router.AddNewBook).Methods("POST")
+	r.HandleFunc("/api/bookstore/{id}", router.UpdateDataBook).Methods("PUT")
 
 	log.Printf("Rodando na porta :8080")
 	log.Printf("Rodando no endereço http://localhost:8080")
